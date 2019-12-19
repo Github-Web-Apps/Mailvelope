@@ -22,6 +22,7 @@ import {Collapse} from 'reactstrap';
 import * as l10n from '../lib/l10n';
 import {APP_TOP_FRAME_ID} from '../lib/constants';
 import EventHandler from '../lib/EventHandler';
+import {str2bool} from '../lib/util';
 import {NavLink} from './util/util';
 import SecurityBG from '../components/util/SecurityBG';
 import Terminate from '../components/util/Terminate';
@@ -58,7 +59,7 @@ l10n.register([
 
 export let port; // EventHandler
 
-export const AppOptions = React.createContext({gnupg: false});
+export const AppOptions = React.createContext({embedded: false, gnupg: false});
 
 class App extends React.Component {
   constructor(props) {
@@ -74,6 +75,7 @@ class App extends React.Component {
       prefs: null, // global preferences
       gnupg: false, // GnuPG installed
       collapse: false,
+      embedded: str2bool(query.get('embedded') || false),
       terminate: false,
       version: '' // Mailvelope version
     };
@@ -126,8 +128,8 @@ class App extends React.Component {
         <Route exact path="/" render={() => <Redirect to="/keyring" />} />
         <Route exact path="/encryption" render={() => <Redirect to="/encryption/file-encrypt" />} />
         <Route exact path="/settings" render={() => <Redirect to="/settings/general" />} />
-        <nav className="navbar flex-column fixed-top navbar-expand-md navbar-light bg-white">
-          <div className="container p-3">
+        <nav className={`navbar ${this.state.embedded ? 'embedded' : ''} flex-column fixed-top navbar-expand-md navbar-light bg-white`}>
+          <div className="container">
             <Link to="/dashboard" className="navbar-brand">
               <img src="../img/Mailvelope/logo.svg" width="175" height="32" className="d-inline-block align-top" alt="" />
             </Link>
@@ -148,8 +150,8 @@ class App extends React.Component {
           </div>
           {(this.state.prefs && !this.state.prefs.security.personalized && this.props.location.pathname !== '/settings/security-background') && <div className="feature-banner d-flex align-items-center justify-content-center align-self-stretch p-3"><span className="mr-3">{l10n.map.feature_banner_new_security_background_text}</span><Link to="/settings/security-background" className="btn btn-sm btn-primary">{l10n.map.feature_banner_new_security_background_btn}</Link></div>}
         </nav>
-        <main className={`container ${(this.state.prefs && !this.state.prefs.security.personalized && this.props.location.pathname !== '/settings/security-background') ? 'featured' : ''}`} role="main">
-          <AppOptions.Provider value={{gnupg: this.state.gnupg}}>
+        <main className={`container ${this.state.embedded ? 'embedded' : ''} ${(this.state.prefs && !this.state.prefs.security.personalized && this.props.location.pathname !== '/settings/security-background') ? 'featured' : ''}`} role="main">
+          <AppOptions.Provider value={{embedded: this.state.embedded, gnupg: this.state.gnupg}}>
             <Route path="/dashboard" component={Dashboard} />
             <Route path="/keyring" render={() => <Keyring prefs={this.state.prefs} />} />
             <Route path="/encrypt" component={Encrypt} />

@@ -9,7 +9,6 @@ import PropTypes from 'prop-types';
 import {NavPill} from '../util/util';
 import * as l10n from '../../lib/l10n';
 import Notifications from '../../components/util/Notifications';
-
 import General from './General';
 import Security from './Security';
 import SecurityBackground from './SecurityBackground';
@@ -17,6 +16,9 @@ import WatchList from './WatchList';
 import SecurityLog from './SecurityLog';
 import KeyServer from './keyserver';
 import Provider from './Provider';
+import {AppOptions} from '../app';
+
+import './Settings.scss';
 
 l10n.register([
   'settings_general',
@@ -48,30 +50,34 @@ export default class Settings extends React.Component {
         <div className="jumbotron">
           <section className="card mv-options">
             <div className="card-body">
-              <div className="row">
-                <div className="col-lg-3 mb-4">
-                  <div role="navigation">
-                    <div className="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-                      <NavPill to="/settings/general">{l10n.map.settings_general}</NavPill>
-                      <NavPill to="/settings/watchlist">{l10n.map.settings_watchlist}</NavPill>
-                      <NavPill to="/settings/security">{l10n.map.settings_security}</NavPill>
-                      <NavPill to="/settings/security-background">{l10n.map.settings_security_background}</NavPill>
-                      <NavPill to="/settings/provider">{l10n.map.settings_provider}</NavPill>
-                      <NavPill to="/settings/security-log">{l10n.map.settings_security_log}</NavPill>
-                      <NavPill to="/settings/key-server">{l10n.map.settings_keyserver}</NavPill>
+              <AppOptions.Consumer>
+                {({embedded}) => (
+                  <div className="row">
+                    <div className={`${embedded ? 'col-md-3' : 'col-lg-3'} mb-4`}>
+                      <div role="navigation">
+                        <div className="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                          <NavPill to="/settings/general">{l10n.map.settings_general}</NavPill>
+                          <NavPill to="/settings/watchlist">{l10n.map.settings_watchlist}</NavPill>
+                          <NavPill to="/settings/security">{l10n.map.settings_security}</NavPill>
+                          <NavPill to="/settings/security-background">{l10n.map.settings_security_background}</NavPill>
+                          <NavPill to="/settings/provider">{l10n.map.settings_provider}</NavPill>
+                          <NavPill to="/settings/security-log">{l10n.map.settings_security_log}</NavPill>
+                          <NavPill to="/settings/key-server">{l10n.map.settings_keyserver}</NavPill>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={embedded ? 'col-md-9' : 'col-lg-9'}>
+                      <Route path="/settings/general" component={General} />
+                      <Route path="/settings/provider" render={({location}) => <Provider onSetNotification={this.handleSetNotification} location={location} />} />
+                      <Route path="/settings/security" render={() => <Security onSetNotification={this.handleSetNotification} />} />
+                      <Route path="/settings/security-background" render={() => <SecurityBackground prefs={this.props.prefs} onChangePrefs={this.props.onChangePrefs} />} />
+                      <Route path="/settings/watchlist" component={WatchList} />
+                      <Route path="/settings/security-log" component={SecurityLog} />
+                      <Route path="/settings/key-server" render={() => <KeyServer prefs={this.props.prefs} onChangePrefs={this.props.onChangePrefs} onSetNotification={this.handleSetNotification} />} />
                     </div>
                   </div>
-                </div>
-                <div className="col-lg-9">
-                  <Route path="/settings/general" component={General} />
-                  <Route path="/settings/provider" render={({location}) => <Provider onSetNotification={this.handleSetNotification} location={location} />} />
-                  <Route path="/settings/security" render={() => <Security onSetNotification={this.handleSetNotification} />} />
-                  <Route path="/settings/security-background" render={() => <SecurityBackground prefs={this.props.prefs} onChangePrefs={this.props.onChangePrefs} />} />
-                  <Route path="/settings/watchlist" component={WatchList} />
-                  <Route path="/settings/security-log" component={SecurityLog} />
-                  <Route path="/settings/key-server" render={() => <KeyServer prefs={this.props.prefs} onChangePrefs={this.props.onChangePrefs} onSetNotification={this.handleSetNotification} />} />
-                </div>
-              </div>
+                )}
+              </AppOptions.Consumer>
             </div>
           </section>
         </div>

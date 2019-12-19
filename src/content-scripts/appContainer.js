@@ -29,7 +29,7 @@ export default class AppContainer {
     return new Promise(resolve => {
       this.parent = document.querySelector(this.selector);
       this.container = document.createElement('iframe');
-      const options = `id=${this.id}&krid=${encodeURIComponent(this.keyringId)}${this.email}${this.fullName}#/keyring/${this.hasPrivateKey ? 'display' : 'setup'}`;
+      const options = `embedded=true&id=${this.id}&krid=${encodeURIComponent(this.keyringId)}${this.email}${this.fullName}#/keyring/${this.hasPrivateKey ? 'display' : 'setup'}`;
       const url = chrome.runtime.getURL(`app/app.html?${options}`);
       this.container.setAttribute('src', url);
       this.container.setAttribute('frameBorder', 0);
