@@ -35,7 +35,6 @@ export default class gmailDecryptController extends DecryptController {
   }
 
   onDecrypt() {
-    this.gmailCtrl.ports.gmailInt.emit('update-message-data', {msgId: this.msgId, data: {secureAction: true}});
     this.processData();
   }
 
@@ -95,7 +94,6 @@ export default class gmailDecryptController extends DecryptController {
 
   async processData(accessToken) {
     if (this.armored) {
-      this.gmailCtrl.ports.gmailInt.emit('update-message-data', {msgId: this.msgId, data: {secureAction: true}});
       await super.decrypt(this.armored, this.keyringId);
     }
     try {
@@ -142,9 +140,6 @@ export default class gmailDecryptController extends DecryptController {
       if (mimeType === 'multipart/signed' || mimeType === 'multipart/encrypted') {
         return mimeType;
       }
-    }
-    if (this.ascAttachments.includes('signature.asc')) {
-      return 'multipart/signed';
     }
     if (this.ascAttachments.includes('encrypted.asc')) {
       return 'multipart/encrypted';
@@ -193,6 +188,7 @@ export default class gmailDecryptController extends DecryptController {
     this.attachments = this.attachments.filter(name => name !== fileName);
     const {data} = await gmail.getAttachment({attachmentId, fileName, email: this.userEmail, msgId: this.msgId, accessToken});
     this.armored = dataURL2str(data);
+    this.gmailCtrl.ports.gmailInt.emit('update-message-data', {msgId: this.msgId, data: {secureAction: true}});
     if (!await this.canUnlockKey(this.armored, this.keyringId)) {
       this.ports.dDialog.emit('lock');
     } else {
